@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+ minecraft:
+    image: itzg/minecraft-server
+    container_name: "nookmc"
+    volumes:
+     # Bind Docker volumes to root
+     - minecraftdata:/data
+     - /home/Minecraft/plugins:/plugins
+    ports:
+      - 25565:25565
+    environment:
+      EULA: "TRUE"
+      SERVER_NAME: "nook.unpass.net"
+      SERVER_MODE: "survival"
+      TYPE: "PAPER"
+      ICON: https://b.catgirlsare.sexy/JmpxhV35dn21.png
+      MOTD: "active plugins: GrimAC, TreeFeller, VeinMiner, AdvancedTP, GriefPrevention"
+      # GrimAC, TreeFeller, VeinMiner, AdvancedTP, Prevent Griefing (GriefPrevention fork)
+      SPIGET_RESOURCES: 84310,99923,12038,64139,106257
+      OPS: 3chan, kxtarouo
+      WHITELIST: 3chan,kxtarouo,canopea,peenmaster95,XxkULEmINER123xX,avail
+      ENABLE_WHITELIST: "TRUE"
+      ENFORCE_WHITELIST: "TRUE"
+      BROADCAST_RCON_TO_OPS: "TRUE"
+      BROADCAST_CONSOLE_TO_OPS: "TRUE"
+    tty: true
+    stdin_open: true
+    restart: always
+volumes:
+  minecraftdata:
+    external: true
