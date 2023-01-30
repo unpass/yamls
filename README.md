@@ -1,4 +1,5 @@
 # yamls (in progress)
 personal docker/ansible/etc. yamls 
 - minecraft docker compose yaml
-- ansible yamls for personal blog
+  - whitelist enabled, msg me if interested
+- ansible yaml for personal blog
