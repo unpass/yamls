@@ -1,0 +1,63 @@
+---
+-
+  hosts: linode
+  gather_facts: false
+
+  tasks:
+    - name: ping
+      ping:
+    
+    - name: install hugo
+      apt:
+        name: hugo
+        update_cache: yes
+        state: latest
+   
+    - name: install git
+      apt:
+        name: git
+        update_cache: yes
+        state: latest
+
+    - name: clone repo
+      git:
+        repo: https://github.com/unpass/nate.unpass.net.git
+        dest: "/home/unpass/blog/unpass"
+        force: yes
+        version: master
+
+    - name: copy theme
+      copy:
+        src: "/home/unpass/blog/unpass/themes/hugo-bearblog"
+        dest: "/home/unpass/blog/unpass/themes/hugo-bearblog"
+        directory_mode:
+
+    - name: install nginx
+      apt:
+        name: nginx
+        update_cache: yes
+        state: latest
+
+    - name: remove default nginx site
+      file:
+        name: "/etc/nginx/sites-enabled/default"
+        state: absent
+    
+    - name: copy /etc/nginx/sites-available/nate from local
+      copy:
+        src: "/etc/nginx/sites-available/nate"
+        dest: "/etc/nginx/sites-available/nate"
+        mode: 0644
+
+    - name: create nginx available-enabled symlink
+      file:
+        src: "/etc/nginx/sites-available/nate"
+        dest: "/etc/nginx/sites-enabled/nate"
+        state: link
+
+    - name: update blog
+      shell:
+        cmd: hugo
+        chdir: "/home/unpass/blog/unpass"
+
+...
