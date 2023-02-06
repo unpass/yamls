@@ -26,17 +26,30 @@
         force: yes
         version: master
 
-    - name: copy theme
-      copy:
+    - name: install rsync
+      apt:
+        name: rsync
+        update_cache: yes
+        state: latest
+
+    - name: sync theme
+      synchronize:
         src: "/home/unpass/blog/unpass/themes/hugo-bearblog"
         dest: "/home/unpass/blog/unpass/themes/hugo-bearblog"
-        directory_mode:
+        recursive: true
+      delegate_to: linode1
 
     - name: install nginx
       apt:
         name: nginx
         update_cache: yes
         state: latest
+
+    - name: copy nginx.conf
+      copy:
+        src: "/etc/nginx/nginx.conf"
+        dest: "/etc/nginx/nginx.conf"
+        mode: 0644
 
     - name: remove default nginx site
       file:
@@ -49,7 +62,7 @@
         dest: "/etc/nginx/sites-available/nate"
         mode: 0644
 
-    - name: create nginx available-enabled symlink
+    - name: create nginx symlink
       file:
         src: "/etc/nginx/sites-available/nate"
         dest: "/etc/nginx/sites-enabled/nate"
@@ -59,5 +72,10 @@
       shell:
         cmd: hugo
         chdir: "/home/unpass/blog/unpass"
+
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
 
 ...
