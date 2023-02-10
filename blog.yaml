@@ -1,19 +1,19 @@
 ---
 -
-  hosts: linode
+  hosts: linode1
   gather_facts: false
 
   tasks:
     - name: ping
       ping:
     
-    - name: install hugo
+     - name: install hugo
       apt:
         name: hugo
         update_cache: yes
         state: latest
    
-    - name: install git
+     - name: install git
       apt:
         name: git
         update_cache: yes
@@ -26,7 +26,7 @@
         force: yes
         version: master
 
-    - name: install rsync
+     - name: install rsync
       apt:
         name: rsync
         update_cache: yes
@@ -34,22 +34,23 @@
 
     - name: sync theme
       synchronize:
-        src: "/home/unpass/blog/unpass/themes/hugo-bearblog"
+        src: "unpass/themes/hugo-bearblog"
         dest: "/home/unpass/blog/unpass/themes/hugo-bearblog"
         recursive: true
-      delegate_to: linode1
+        delete: true # Clean up extra files that may occur from recursive: true
 
-    - name: install nginx
+     - name: install nginx
       apt:
         name: nginx
         update_cache: yes
         state: latest
 
-    - name: copy nginx.conf
+
+     - name: copy nginx.conf
       copy:
         src: "/etc/nginx/nginx.conf"
         dest: "/etc/nginx/nginx.conf"
-        mode: 0644
+        mode: 0644 
 
     - name: remove default nginx site
       file:
@@ -68,7 +69,12 @@
         dest: "/etc/nginx/sites-enabled/nate"
         state: link
 
-    - name: update blog
+    # - name: run hugo server (tcp/1313)
+    # shell:
+    # cmd: hugo server -t hugo-bearblog --buildDrafts --bind "0.0.0.0"
+    # chdir: "/home/unpass/blog/unpass" 
+    
+    - name: update nginx sites-available (hugo)
       shell:
         cmd: hugo
         chdir: "/home/unpass/blog/unpass"
@@ -77,5 +83,20 @@
       service:
         name: nginx
         state: restarted
+
+    - name: install certbot
+      apt:
+        name:
+          - certbot
+          - python3-certbot-nginx
+        state: latest
+
+    - name: generate certs
+      shell: certbot --nginx -d 'nate.unpass.net' -m hello@unpass.net --agree-tos -n --nginx-ctl '/usr/sbin/nginx' --redirect
+
+     - name: restart nginx
+       service:
+         name: nginx
+         state: restarted
 
 ...
